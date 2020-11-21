@@ -125,4 +125,5 @@ func MiddleAdmin(ctx iris.Context) {
 func requireAuth(ctx iris.Context) {
 	ctx.StatusCode(401)
 	ctx.WriteString("Not Authorized")
+	ctx.StopExecution()
 }
