@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"github.com/Thelvaen/iris-auth-gorm/models"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
-	"github.com/thelvaen/iris-auth-gorm/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
