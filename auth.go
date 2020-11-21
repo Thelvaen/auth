@@ -20,7 +20,7 @@ func MiddleWare(ctx iris.Context) {
 	session := sessions.Get(ctx)
 
 	userID := session.Get("userID")
-	if userID == nil {
+	if userID == nil || userID == "NULL" {
 		ctx.Next()
 	}
 	var user models.User
@@ -94,4 +94,30 @@ func inArray(needle interface{}, haystack interface{}) (exists bool) {
 		}
 	}
 	return
+}
+
+// MiddleAuth exports the middleware function to check authentification
+func MiddleAuth(ctx iris.Context) {
+	session := sessions.Get(ctx)
+
+	userID := session.Get("userID")
+	if userID == nil || userID == "NULL" {
+		return
+	}
+	ctx.Next()
+}
+
+// MiddleAdmin exports the middleware function to check authentification
+func MiddleAdmin(ctx iris.Context) {
+	session := sessions.Get(ctx)
+
+	userID := session.Get("userID")
+	if userID == nil || userID == "NULL" {
+		return
+	}
+	roles, _ := ctx.User().GetRoles()
+	if !inArray("admin", roles) {
+		return
+	}
+	ctx.Next()
 }
