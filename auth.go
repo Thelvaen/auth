@@ -102,7 +102,7 @@ func MiddleAuth(ctx iris.Context) {
 
 	userID := session.Get("userID")
 	if userID == nil || userID == "NULL" {
-		return
+		requireAuth(ctx)
 	}
 	ctx.Next()
 }
@@ -113,11 +113,16 @@ func MiddleAdmin(ctx iris.Context) {
 
 	userID := session.Get("userID")
 	if userID == nil || userID == "NULL" {
-		return
+		requireAuth(ctx)
 	}
 	roles, _ := ctx.User().GetRoles()
 	if !inArray("admin", roles) {
-		return
+		requireAuth(ctx)
 	}
 	ctx.Next()
+}
+
+func requireAuth(ctx iris.Context) {
+	ctx.StatusCode(401)
+	ctx.WriteString("Not Authorized")
 }
