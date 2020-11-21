@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"reflect"
+
 	"github.com/Thelvaen/iris-auth-gorm/models"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
@@ -55,5 +57,41 @@ func Check(user models.User, ctx iris.Context) {
 	session.Set("userID", user.ID)
 	callback := ctx.URLParamDefault("callback_url", "/")
 	ctx.Redirect(callback, iris.StatusFound)
+	return
+}
+
+// IsAuth returns true if User has been authenticated
+func IsAuth(ctx iris.Context) bool {
+	if ctx.User() != nil {
+		return true
+	}
+	return false
+}
+
+// IsAdmin returns true if User has been authenticated
+func IsAdmin(ctx iris.Context) bool {
+	if ctx.User() == nil {
+		return false
+	}
+	roles, _ := ctx.User().GetRoles()
+	if !inArray("admin", roles) {
+		return false
+	}
+	return true
+}
+
+func inArray(needle interface{}, haystack interface{}) (exists bool) {
+	exists = false
+
+	switch reflect.TypeOf(haystack).Kind() {
+	case reflect.Slice:
+		s := reflect.ValueOf(haystack)
+		for i := 0; i < s.Len(); i++ {
+			if reflect.DeepEqual(needle, s.Index(i).Interface()) == true {
+				exists = true
+				return
+			}
+		}
+	}
 	return
 }
