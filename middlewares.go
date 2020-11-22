@@ -50,6 +50,7 @@ func MiddleAuth(ctx iris.Context) {
 	userID := session.Get("userID")
 	if userID == nil || userID == "NULL" {
 		requireAuth(ctx)
+		return
 	}
 	ctx.Next()
 }
@@ -62,10 +63,14 @@ func MiddleRole(role string) iris.Handler {
 		userID := session.Get("userID")
 		if userID == nil || userID == "NULL" {
 			requireAuth(ctx)
+			ctx.StopExecution()
+			return
 		}
 		roles, _ := ctx.User().GetRoles()
 		if !inArray(role, roles) {
 			requireAdm(ctx)
+			ctx.StopExecution()
+			return
 		}
 		ctx.Next()
 	}
