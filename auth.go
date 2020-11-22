@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"reflect"
 
 	"github.com/Thelvaen/iris-auth-gorm/models"
@@ -11,34 +12,50 @@ import (
 )
 
 var (
-	dataStore  *gorm.DB
-	loginRoute string
+	dataStore     *gorm.DB
+	loginRoute    string
+	returnOnError bool
 )
 
-// MiddleWare exports the middleware function to check authentification
-func MiddleWare(ctx iris.Context) {
-	session := sessions.Get(ctx)
+// Config struct allows the configuration to be passed to the function at init
+type Config struct {
+	dataStore     *gorm.DB
+	loginRoute    string
+	returnOnError bool
+}
 
-	userID := session.Get("userID")
-	if userID == nil || userID == "NULL" {
+// MiddleWare exports the middleware function to check authentification
+func MiddleWare(config Config) iris.Handler {
+	// check if DB backend has been provided, will die if not
+	if config.dataStore == nil {
+		log.Fatalf("no DB provided to AuthMiddleware")
+	}
+	dataStore = config.dataStore
+
+	// check if default login route has been provided, assumes /login if not
+	if config.loginRoute == "" {
+		loginRoute = config.loginRoute
+	} else {
+		loginRoute = "/login"
+	}
+
+	if config.returnOnError {
+		returnOnError = true
+	}
+
+	return func(ctx iris.Context) {
+		session := sessions.Get(ctx)
+
+		userID := session.Get("userID")
+		if userID == nil || userID == "NULL" {
+			ctx.Next()
+		}
+		var user models.User
+		if err := dataStore.Where("ID = ?", userID).First(&user).Error; err == nil {
+			ctx.SetUser(&user)
+		}
 		ctx.Next()
 	}
-	var user models.User
-	if err := dataStore.Where("ID = ?", userID).First(&user).Error; err == nil {
-		ctx.SetUser(&user)
-	}
-	ctx.Next()
-}
-
-// SetDB allows the using package to provide us with the DB information
-func SetDB(DataStore *gorm.DB) {
-	dataStore = DataStore
-	dataStore.Migrator().AutoMigrate(&models.User{})
-}
-
-// RequireAuthRoute gets the route to call if auth fail
-func RequireAuthRoute(login string) {
-	loginRoute = login
 }
 
 // Check verifies the provided user against the DB
@@ -123,6 +140,10 @@ func MiddleAdmin(ctx iris.Context) {
 }
 
 func requireAuth(ctx iris.Context) {
+	if returnOnError {
+		ctx.Redirect(loginRoute, iris.StatusPermanentRedirect)
+		ctx.StopExecution()
+	}
 	ctx.StatusCode(401)
 	ctx.WriteString("Not Authorized")
 	ctx.StopExecution()
