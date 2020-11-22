@@ -19,27 +19,27 @@ var (
 
 // Config struct allows the configuration to be passed to the function at init
 type Config struct {
-	dataStore     *gorm.DB
-	loginRoute    string
-	returnOnError bool
+	DataStore     *gorm.DB
+	LoginRoute    string
+	ReturnOnError bool
 }
 
 // MiddleWare exports the middleware function to check authentification
 func MiddleWare(config Config) iris.Handler {
 	// check if DB backend has been provided, will die if not
-	if config.dataStore == nil {
+	if config.DataStore == nil {
 		log.Fatalf("no DB provided to AuthMiddleware")
 	}
-	dataStore = config.dataStore
+	dataStore = config.DataStore
 
 	// check if default login route has been provided, assumes /login if not
-	if config.loginRoute == "" {
-		loginRoute = config.loginRoute
+	if config.LoginRoute == "" {
+		loginRoute = config.LoginRoute
 	} else {
 		loginRoute = "/login"
 	}
 
-	if config.returnOnError {
+	if config.ReturnOnError {
 		returnOnError = true
 	}
 
