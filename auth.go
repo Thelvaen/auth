@@ -134,7 +134,7 @@ func MiddleAdmin(ctx iris.Context) {
 	}
 	roles, _ := ctx.User().GetRoles()
 	if !inArray("admin", roles) {
-		requireAuth(ctx)
+		requireAdm(ctx)
 	}
 	ctx.Next()
 }
@@ -144,6 +144,12 @@ func requireAuth(ctx iris.Context) {
 		ctx.Redirect(loginRoute+"?callback_url="+ctx.Request().RequestURI, iris.StatusTemporaryRedirect)
 		ctx.StopExecution()
 	}
+	ctx.StatusCode(401)
+	ctx.WriteString("Not Authorized")
+	ctx.StopExecution()
+}
+
+func requireAdm(ctx iris.Context) {
 	ctx.StatusCode(401)
 	ctx.WriteString("Not Authorized")
 	ctx.StopExecution()
