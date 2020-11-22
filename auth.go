@@ -141,7 +141,7 @@ func MiddleAdmin(ctx iris.Context) {
 
 func requireAuth(ctx iris.Context) {
 	if returnOnError {
-		ctx.Redirect(loginRoute, iris.StatusPermanentRedirect)
+		ctx.Redirect(loginRoute+"?callback_url="+ctx.Request().RequestURI, iris.StatusTemporaryRedirect)
 		ctx.StopExecution()
 	}
 	ctx.StatusCode(401)
