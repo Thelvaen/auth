@@ -21,7 +21,7 @@ type User struct {
 	Roles         MultiString            `gorm:"type:text" json:"roles,omitempty"`
 	Authorization string                 `json:"authorization,omitempty"`
 	AuthorizedAt  time.Time              `json:"authorized_at,omitempty"`
-	Token         json.RawMessage        `gorm:"type:text" json:"token,omitempty"`
+	Token         JSON                   `gorm:"type:text" json:"token,omitempty"`
 	Fields        map[string]interface{} `gorm:"-" json:"fields,omitempty"`
 }
 
@@ -119,4 +119,27 @@ func (s MultiString) Value() (driver.Value, error) {
 	}
 	data, _ := json.Marshal(s)
 	return data, nil
+}
+
+// JSON allows us to overload the json.Rawmessage type
+type JSON json.RawMessage
+
+// Scan scan value into Jsonb, implements sql.Scanner interface
+func (j *JSON) Scan(src interface{}) error {
+	var bytes []byte
+	switch v := src.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", src))
+	}
+	*j = []byte(bytes)
+	return nil
+}
+
+// Value return json value, implement driver.Valuer interface
+func (j JSON) Value() (driver.Value, error) {
+	return string(j), nil
 }
