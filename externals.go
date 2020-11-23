@@ -27,6 +27,7 @@ type SMTP struct {
 	Username string
 	Password string
 	Template string
+	EHLO     string
 }
 
 // Check verifies the provided user against the DB

@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
+	"net"
 	"net/smtp"
 	"reflect"
 	"text/template"
@@ -93,6 +94,9 @@ func parseConfig(config Config) {
 	if config.MailServer.Template != "" {
 		mailServer.Template = config.MailServer.Template
 	}
+	if config.MailServer.EHLO != "" {
+		mailServer.EHLO = config.MailServer.EHLO
+	}
 }
 
 type mailVars struct {
@@ -114,9 +118,7 @@ func sendMail(user models.User) {
 	}
 
 	// Receiver email address.
-	to := []string{
-		user.Email,
-	}
+	to := user.Email
 
 	// Using template to process mail
 	t := template.Must(template.New("mailTemplate").Parse(string(mailServer.Template)))
@@ -127,20 +129,23 @@ func sendMail(user models.User) {
 		User:  user.Username,
 		Token: newToken.Token,
 	}
-	message := new(bytes.Buffer)
 
-	err := t.Execute(message, mail)
-	if err != nil {
-		log.Println("executing template:", err)
+	var remote net.Conn
+	client, _ := smtp.NewClient(remote, mailServer.Host)
+	defer client.Close()
+	client.Hello(mailServer.EHLO)
+
+	authErr := client.Auth(smtp.PlainAuth("", mailServer.Username, mailServer.Password, mailServer.Host))
+	if authErr != nil {
+		fmt.Println("login error", authErr)
+		return
 	}
 
-	// Authentication.
-	auth := smtp.PlainAuth("", mailServer.Username, mailServer.Password, mailServer.Host)
-
-	// Sending email.
-	err = smtp.SendMail(mailServer.Host+":"+mailServer.Port, auth, from, to, message.Bytes())
+	client.Mail(from)
+	client.Rcpt(to)
+	writer, _ := client.Data()
+	err := t.Execute(writer, mail)
 	if err != nil {
-		// Process error here
-		return
+		log.Println("executing template:", err)
 	}
 }
