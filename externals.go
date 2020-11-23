@@ -17,17 +17,6 @@ type Config struct {
 	DataStore     *gorm.DB
 	LoginRoute    string
 	ReturnOnError bool
-	MailServer    SMTP
-}
-
-// SMTP struct gives the package the SMTP details to send token to user to initialize password or to change them when lost
-type SMTP struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	Template string
-	EHLO     string
 }
 
 // Check verifies the provided user against the DB
@@ -73,15 +62,14 @@ func HasRole(ctx iris.Context, role string) bool {
 }
 
 // CreateUser allow to store a user in the DB
-func CreateUser(user models.User) {
-	if user.Password == "" {
-		// Generate Token
-		var token map[string]string
-		token = make(map[string]string)
-		token["password"] = string(base64.StdEncoding.EncodeToString(securecookie.GenerateRandomKey(32)))
-		user.Token, _ = json.Marshal(token)
-		// Send mail to User
-		sendMail(user)
-	}
+func CreateUser(user models.User) (token string, id uint) {
+
+	// Generate Token
+	var ttoken map[string]string
+	ttoken = make(map[string]string)
+	ttoken["password"] = string(base64.StdEncoding.EncodeToString(securecookie.GenerateRandomKey(32)))
+	user.Token, _ = json.Marshal(ttoken)
+	// Send mail to User
 	dataStore.Create(&user)
+	return ttoken["password"], user.ID
 }
