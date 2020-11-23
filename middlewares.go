@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"log"
-
 	"github.com/Thelvaen/iris-auth-gorm/models"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
@@ -11,22 +9,7 @@ import (
 // Init exports the middleware function to initialize DB if needed, and populate
 // the ctx.User() object at each run.
 func Init(config Config) iris.Handler {
-	// check if DB backend has been provided, will die if not
-	if config.DataStore == nil {
-		log.Fatalf("no DB provided to AuthMiddleware")
-	}
-	dataStore = config.DataStore
-
-	// check if default login route has been provided, assumes /login if not
-	if config.LoginRoute == "" {
-		loginRoute = config.LoginRoute
-	} else {
-		loginRoute = "/login"
-	}
-
-	if config.ReturnOnError {
-		returnOnError = true
-	}
+	parseConfig(config)
 
 	return func(ctx iris.Context) {
 		session := sessions.Get(ctx)

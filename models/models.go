@@ -17,7 +17,7 @@ type User struct {
 	gorm.Model
 	Username      string                 `gorm:"not null;unique" form:"username" json:"username,omitempty"`
 	Password      string                 `gorm:"not null" form:"password" json:"-"`
-	Email         string                 `gorm:"not null" json:"email,omitempty"`
+	Email         string                 `gorm:"not null;unique" json:"email,omitempty"`
 	Roles         MultiString            `gorm:"type:text" json:"roles,omitempty"`
 	Authorization string                 `json:"authorization,omitempty"`
 	AuthorizedAt  time.Time              `json:"authorized_at,omitempty"`
