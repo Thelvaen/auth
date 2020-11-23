@@ -1,4 +1,4 @@
-module github.com/Thelvaen/iris-auth-gorm
+module github.com/Thelvaen/auth
 
 go 1.15
 
