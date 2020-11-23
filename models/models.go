@@ -21,7 +21,7 @@ type User struct {
 	Roles         MultiString            `gorm:"type:text" json:"roles,omitempty"`
 	Authorization string                 `json:"authorization,omitempty"`
 	AuthorizedAt  time.Time              `json:"authorized_at,omitempty"`
-	Token         json.RawMessage        `gorm:"type:json" json:"token,omitempty"`
+	Token         json.RawMessage        `gorm:"type:text" json:"token,omitempty"`
 	Fields        map[string]interface{} `gorm:"-" json:"fields,omitempty"`
 }
 
