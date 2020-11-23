@@ -92,8 +92,10 @@ func (u *User) GetField(key string) (interface{}, error) {
 	return u.Fields[key], nil
 }
 
+// MultiString type is needed for gorm encapsulation
 type MultiString []string
 
+// Scan is needed for gorm encapsulation
 func (s *MultiString) Scan(src interface{}) error {
 	var bytes []byte
 	switch v := src.(type) {
@@ -110,6 +112,7 @@ func (s *MultiString) Scan(src interface{}) error {
 	return err
 }
 
+// Value is needed for gorm encapsulation
 func (s MultiString) Value() (driver.Value, error) {
 	if s == nil || len(s) == 0 {
 		return nil, nil
