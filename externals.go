@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/Thelvaen/iris-auth-gorm/models"
+	"github.com/Thelvaen/auth/models"
 	"github.com/gorilla/securecookie"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
