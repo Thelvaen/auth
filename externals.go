@@ -69,7 +69,6 @@ func CreateUser(user models.User) (token string, id uint) {
 	ttoken = make(map[string]string)
 	ttoken["password"] = string(base64.StdEncoding.EncodeToString(securecookie.GenerateRandomKey(32)))
 	user.Token, _ = json.Marshal(ttoken)
-	// Send mail to User
 	dataStore.Create(&user)
 	return ttoken["password"], user.ID
 }
