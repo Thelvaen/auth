@@ -47,10 +47,6 @@ func requireAdm(ctx iris.Context) {
 	ctx.StopExecution()
 }
 
-func migrate() {
-	dataStore.Migrator().AutoMigrate(&models.User{})
-}
-
 func parseConfig(config Config) {
 	// check if DB backend has been provided, will die if not
 	if config.DataStore == nil {
@@ -58,9 +54,7 @@ func parseConfig(config Config) {
 	}
 	dataStore = config.DataStore
 
-	if !dataStore.Migrator().HasTable("users") {
-		migrate()
-	}
+	dataStore.Migrator().AutoMigrate(&models.User{})
 
 	// check if default login route has been provided, assumes /login if not
 	if config.LoginRoute == "" {
