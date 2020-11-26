@@ -21,22 +21,22 @@ type Config struct {
 }
 
 // Check verifies the provided user against the DB
-func Check(user models.User, ctx iris.Context) {
+func Check(user models.User, ctx iris.Context) bool {
 	session := sessions.Get(ctx)
 
 	clearPassword := user.Password
 	if err := dataStore.Where("Username = ?", user.Username).First(&user).Error; err != nil {
 		ctx.Redirect(loginRoute, iris.StatusFound)
-		return
+		return false
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(clearPassword)); err != nil {
 		ctx.Redirect(loginRoute, iris.StatusFound)
-		return
+		return false
 	}
 	session.Set("userID", user.ID)
 	callback := ctx.URLParamDefault("callback_url", "/")
 	ctx.Redirect(callback, iris.StatusFound)
-	return
+	return true
 }
 
 // IsAuth returns true if User has been authenticated
