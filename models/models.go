@@ -14,7 +14,7 @@ import (
 
 // User structure made exportable to be used with Gorm ORM
 type User struct {
-	ID            uuid.UUID              `gorm:"primarykey"`
+	ID            uuid.UUID              `gorm:"type:uuid;primarykey"`
 	Username      string                 `gorm:"not null;unique" form:"username" json:"username,omitempty"`
 	Password      string                 `gorm:"not null" form:"password" json:"-"`
 	Email         string                 `gorm:"not null;unique" json:"email,omitempty"`
@@ -29,6 +29,30 @@ type User struct {
 }
 
 var _ context.User = (*User)(nil)
+
+// IsValid checks if min required fields are filled
+func (u *User) IsValid() bool {
+	if u.ID.String() == "" {
+		return false
+	}
+	if u.Username == "" {
+		return false
+	}
+	if u.Email == "" {
+		return false
+	}
+	return true
+}
+
+// BeforeCreate allow gorm to create the UUID field
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.ID, _ = uuid.NewRandom()
+
+	if !u.IsValid() {
+		err = errors.New("can't save invalid data")
+	}
+	return
+}
 
 // GetAuthorization returns the authorization method,
 // e.g. Basic Authentication.
