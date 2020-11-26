@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/Thelvaen/auth/models"
+	"github.com/google/uuid"
 	"github.com/gorilla/securecookie"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
@@ -62,7 +63,7 @@ func HasRole(ctx iris.Context, role string) bool {
 }
 
 // CreateUser allow to store a user in the DB
-func CreateUser(user models.User) (token string, id uint) {
+func CreateUser(user models.User) (token string, id uuid.UUID) {
 
 	// Generate Token
 	var ttoken map[string]string

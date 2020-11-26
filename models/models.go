@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kataras/iris/v12/context"
 	"gorm.io/gorm"
 )
 
 // User structure made exportable to be used with Gorm ORM
 type User struct {
-	gorm.Model
+	ID            uuid.UUID              `gorm:"primarykey"`
 	Username      string                 `gorm:"not null;unique" form:"username" json:"username,omitempty"`
 	Password      string                 `gorm:"not null" form:"password" json:"-"`
 	Email         string                 `gorm:"not null;unique" json:"email,omitempty"`
@@ -23,6 +23,9 @@ type User struct {
 	AuthorizedAt  time.Time              `json:"authorized_at,omitempty"`
 	Token         JSON                   `gorm:"type:text" json:"token,omitempty"`
 	Fields        map[string]interface{} `gorm:"-" json:"fields,omitempty"`
+	DeletedAt     gorm.DeletedAt         `gorm:"index"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 var _ context.User = (*User)(nil)
@@ -41,7 +44,7 @@ func (u *User) GetAuthorizedAt() (time.Time, error) {
 
 // GetID returns the ID of the User.
 func (u *User) GetID() (string, error) {
-	return strconv.Itoa(int(u.ID)), nil
+	return u.ID.String(), nil
 }
 
 // GetUsername returns the name of the User.
