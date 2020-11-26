@@ -16,16 +16,16 @@ import (
 type User struct {
 	ID            uuid.UUID              `gorm:"type:uuid;primarykey"`
 	Username      string                 `gorm:"not null;unique" form:"username" json:"username,omitempty"`
-	Password      string                 `gorm:"not null" form:"password" json:"-"`
 	Email         string                 `gorm:"not null;unique" json:"email,omitempty"`
 	Roles         MultiString            `gorm:"type:text" json:"roles,omitempty"`
 	Authorization string                 `json:"authorization,omitempty"`
 	AuthorizedAt  time.Time              `json:"authorized_at,omitempty"`
 	Token         JSON                   `gorm:"type:text" json:"token,omitempty"`
 	Fields        map[string]interface{} `gorm:"-" json:"fields,omitempty"`
+	Password      string                 `gorm:"not null" form:"password" json:"-"`
+	CreatedAt     time.Time              `json:"created_at"`
+	UpdatedAt     time.Time              `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt         `gorm:"index"`
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
 }
 
 var _ context.User = (*User)(nil)
